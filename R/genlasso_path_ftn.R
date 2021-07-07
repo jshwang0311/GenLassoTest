@@ -19,7 +19,7 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
   sgn.set <- c()
   delta <- c()
   lbd[1] <- .Machine$double.xmax
-  inv.x <- .ginv_ftn(t(X)%*%(X),tol)%*%t(X)
+  inv.x <- .ginv_ftn(t(X) %*% (X),tol) %*% t(X)
   til.d <- D%*%inv.x
   til.y <- X%*%inv.x%*%y
   if(n<p){
