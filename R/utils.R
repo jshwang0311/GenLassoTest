@@ -22,6 +22,26 @@
   return(rslt)
 }
 
+.check.lasso <- function(D)
+{
+  row.sum <- rowSums(abs(D))
+  row.max <- apply(D, 1, max)
+  row.argmax <- apply(D, 1, which.max)
+  D.indices <- which((row.sum - row.max) == 0)
+  sort.result <- sort(row.argmax[D.indices], index.return=T)
+  lasso.coef.indices <- sort.result$x
+  D.lasso.indices <- D.indices[sort.result$ix]
+  if(length(lasso.coef.indices) == dim(D)[2]){
+    check.seq <- c(1:(dim(D)[2]))
+    if(sum(lasso.coef.indices-check.seq) == 0){
+      return(list(check = T, indices = D.lasso.indices))
+    } else{
+      return(list(check = F, indices = D.lasso.indices))
+    }
+  } else{
+    return(list(check = F, indices = D.lasso.indices))
+  }
+}
 
 .hit_ftn <- function(bf.u,bf.lbd,slope,bd.set,m)
 {

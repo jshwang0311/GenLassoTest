@@ -32,10 +32,14 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
   null.size <- dim(w.mat)[2]
   if(null.size==0){
     pack.genlasso.rslt <- genlasso(y, X, D)
-    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit, beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit))
+    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
+                beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit,
+                X = X, y = y, D=D, W=NULL))
   } else if(genlasso.option){
     pack.genlasso.rslt <- genlasso(y, X, D,svd=T,eps=1e-8)
-    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit, beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit))
+    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
+                beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit,
+                X = X, y = y, D=D, W=NULL))
   } else{
     u.mat <- matrix(nrow=iter,ncol=m)
     delta.mat <- matrix(nrow = iter,ncol=null.size)
@@ -168,6 +172,7 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
     beta <- .ginv_ftn(t(X) %*% X, tol) %*% (matrix(rep(t(X) %*% y, times=length(lbd)), dim(X)[2], length(lbd)) - t(D) %*% t(u.mat)) - w.mat %*% (t(delta.mat)[,-1])
     fit <- X %*% beta
     return(list(u = t(u.mat), delta = (delta.mat), delta_slope = delta.mat.slope,
-                lambda = lbd, hit = hit, beta = beta, fit = fit))
+                lambda = lbd, hit = hit, beta = beta, fit = fit,
+                X = X, y = y, D=D, W=w.mat))
   }
 }

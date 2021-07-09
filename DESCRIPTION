@@ -12,6 +12,7 @@ LazyData: true
 Imports:
 	genlasso,
 	limSolve,
+	optiSolve,
 	svd,
 	irlba,
 	MASS,
