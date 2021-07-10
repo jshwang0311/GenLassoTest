@@ -1,6 +1,6 @@
-#' Get the solution that is a (partial) minimal (or/and) maximal l1 norm solution for some lambda.
+#' Get the solution that is a (partial) maximal l infitiy norm solution for some lambda.
 #'
-#' This function gets the solution that is a (partial) minimal (or/and) maximal l1 norm solution for some lambda.
+#' This function gets the solution that is a (partial) maximal l infitiy norm solution for some lambda.
 #'
 #' @param object ESPgenlasso object
 #' @param lambda.seq lambda seq
@@ -37,7 +37,7 @@ max.linf.solution <- function(object, lambda.seq, max.indices = c(), tol = 1e-10
         op.sol <- solvecop(op,solver = "alabama",maxit = 500,itmax = 500,ilack.max = 500, quiet=TRUE)
         add_coef <- C%*%op.sol$x
         linf.max.beta.cand = object.beta + add_coef
-        if(max(linf.max.beta.cand[j]) > max.val){
+        if(max(abs(linf.max.beta.cand[j])) > max.val){
           linf.max.beta <- linf.max.beta.cand
         }
       }
