@@ -151,15 +151,15 @@
     temp.mat <- rbind(temp.mat,cbind(t((l.d%*%w.mat)),matrix(rep(0,(null.size*null.size)),nrow=null.size)))
   }
   if(dim(temp.mat)[1]>10000){
-    inv.mat <- svdsolve(temp.mat,5000,tol,T)$x
+    inv.mat <- .svdsolve_ftn(temp.mat,5000,tol,T)$x
   }
   else{
     inv.mat <- tryCatch({
-      inv.mat <- svdsolve(temp.mat,5000,tol,F)$x
+      inv.mat <- .svdsolve_ftn(temp.mat,5000,tol,F)$x
     }, error = function(err) {
       err$message = paste(err$message, "\n(svd solve using package)", sep = "")
       warning(err)
-      inv.mat <- svdsolve(temp.mat,min(rankMatrix(temp.mat)[1],5000),tol,T)$x
+      inv.mat <- .svdsolve_ftn(temp.mat,min(Matrix::rankMatrix(temp.mat)[1],5000),tol,T)$x
       return(inv.mat)
     })
   }
@@ -206,12 +206,10 @@
       warning(err)
       inv.mat <- tryCatch({
         inv.mat <- .svdsolve_ftn(A, (Matrix::rankMatrix(A)[1]), tol, T, F)$x
-        #inv.mat <- .svdsolve_ftn(A,tol,T,T)$x
       },error = function(err) {
         err$message <- paste(err$message, "\n(svd solve using package)", sep = "")
         warning(err)
         inv.mat <- .svdsolve_ftn(A, tol, T, T)$x
-        #inv.mat <- .svdsolve_ftn(A,(Matrix::rankMatrix(A)[1]),tol,T,F)$x
         return(inv.mat)
       }
       )

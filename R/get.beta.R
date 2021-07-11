@@ -1,11 +1,20 @@
-#' This function gets the glasso solution for a fixed lambda.
+#' Get the primal solution of the genlasso problem at a fixed lambda.
 #'
-#' @param object ESPgenlasso object
-#' @param lambda
-#' @return the primal solution
+#' This function gets the primal solution of the genlasso problem at a fixed lambda.
+#'
+#' @param object ESPgenlasso object.
+#' @param lambda a specific lambda.
+#' @param tol tolerance.
+#' @return the primal solution at lamdba.
+#' @examples
+#' y <- matrix(c(1000), nrow = 1)
+#' X <- matrix(c(1,1,0),nrow = 1)
+#' D <- matrix(c(1,0,0,0,1,1,0,0,-1), nrow = 3)
+#' object <- ESPgenlasso(y,X,D,genlasso.option = FALSE)
+#' get.beta(object, 700)
 #' @export
 #'
-get.beta <- function(objet, lambda, tol = 1e-10)
+get.beta <- function(object, lambda, tol = 1e-10)
 {
   object.index <- which(object$lambda == lambda)
   if(length(object.index) == 0){

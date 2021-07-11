@@ -1,8 +1,11 @@
-#' This function gets the dual solution of the genlasso problem for a fixed lambda.
+#' Make the parameters in order to find a specific solution for a fixed lambda.
 #'
-#' @param object ESPgenlasso object
-#' @param lambda
-#' @return parameters A, B and C for the characterization
+#' In order to find a specific solution, we need some parameters A,B and C which are explained in the paper. This function makes the parameters for a fixed lambda.
+#'
+#' @param object ESPgenlasso object.
+#' @param lambda a specific lambda
+#' @param tol tolerance.
+#' @return parameters A, B and C for the characterization.
 #' @export
 #'
 make.abc <- function(object,lambda,tol = 1e-10)

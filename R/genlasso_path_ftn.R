@@ -1,12 +1,20 @@
 #' Get Exact Solution Path for genlasso problem.
 #'
-#' This function solves the genlasso problem for all lambda.
+#' This function solves the genlasso problem for all lambda. So, we can get the solution path object which contains dual solution u, break point lambda, primal solution beta and so on.
 #'
 #' @param y a numeric response vector.
 #' @param X a matrix of predictor variables.
 #' @param D a penalty matrix.
 #' @param genlasso.option whether to use the genlasso package.
-#' @return solution path object
+#' @param thres.lambda minimum threshold lambda.
+#' @param iter maximum threshold iteration number.
+#' @param tol tolerance.
+#' @return solution path object.
+#' @examples
+#' y <- matrix(c(1000), nrow = 1)
+#' X <- matrix(c(1,1,0),nrow = 1)
+#' D <- matrix(c(1,0,0,0,1,1,0,0,-1), nrow = 3)
+#' ESPgenlasso(y,X,D,genlasso.option = FALSE)
 #' @export
 #'
 ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 100000, tol=1e-12)
@@ -15,9 +23,7 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
   p <- dim(X)[2]
   m <- dim(D)[1]
   lbd <- c()
-  bd.set <- c()
-  sgn.set <- c()
-  delta <- c()
+
   lbd[1] <- .Machine$double.xmax
   inv.x <- .ginv_ftn(t(X) %*% (X),tol) %*% t(X)
   til.d <- D%*%inv.x
@@ -31,15 +37,19 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
   }
   null.size <- dim(w.mat)[2]
   if(null.size==0){
-    pack.genlasso.rslt <- genlasso(y, X, D)
-    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
+    pack.genlasso.rslt <- genlasso::genlasso(y, X, D)
+    out <- list(u = pack.genlasso.rslt$u,delta = NULL,delta_slope = NULL, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
                 beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit,
-                X = X, y = y, D=D, W=NULL))
+                X = X, y = y, D=D, W=NULL)
+    class(out) <- c("ESPgenlasso", "list")
+    return(out)
   } else if(genlasso.option){
-    pack.genlasso.rslt <- genlasso(y, X, D,svd=T,eps=1e-8)
-    return(list(u = pack.genlasso.rslt$u,delta = null,delta_slope = null, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
+    pack.genlasso.rslt <- genlasso::genlasso(y, X, D,svd=T,eps=1e-8)
+    out <- list(u = pack.genlasso.rslt$u,delta = NULL,delta_slope = NULL, lambda=pack.genlasso.rslt$lambda, hit=pack.genlasso.rslt$hit,
                 beta=pack.genlasso.rslt$beta, fit=pack.genlasso.rslt$fit,
-                X = X, y = y, D=D, W=NULL))
+                X = X, y = y, D=D, W=NULL)
+    class(out) <- c("ESPgenlasso", "list")
+    return(out)
   } else{
     u.mat <- matrix(nrow=iter,ncol=m)
     delta.mat <- matrix(nrow = iter,ncol=null.size)
@@ -48,7 +58,10 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
     sgn <- list()
     solv.temp <- list()
     hit <- c()
-
+    lbd <- c()
+    bd.set <- c()
+    sgn.set <- c()
+    delta <- c()
     for(k in c(1:iter)){
       if(k==1){
         bd[[k]] <- bd.set
@@ -76,6 +89,9 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
         if(length(bd.set)==m){
           delta <- r.delta
           delta.mat[k,] <- delta
+          if(lbd[k-1]<=thres.lambda){
+            break
+          }
           slope <- 0
           delta.slope <- 0
           delta.mat.slope[k-1,] <- rep(0,null.size)
@@ -100,7 +116,9 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
         } else{
           delta <- r.delta
           delta.mat[k,] <- delta
-
+          if(lbd[k-1]<=thres.lambda){
+            break
+          }
           temp.mat <- cbind((matrix(til.d[-bd.set,],ncol=dim(til.d)[2])%*%t(matrix(til.d[-bd.set, ], ncol=dim(til.d)[2]))),
                             (D[-bd.set,]%*%w.mat))
           temp.mat <- rbind(temp.mat, cbind(t((D[-bd.set,]%*%w.mat)), matrix(rep(0,(null.size*null.size)),nrow=null.size)))
@@ -133,11 +151,11 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
             u.mat[k,-bd.set] <- bf.u[-bd.set] + (lbd[k] - bf.lbd)*slope
             u.mat[k,bd.set] <- lbd[k]*sgn.set
 
-            sgn.set <- c(sgn.set,sign(u.mat[k,hit.rslt$coord[1]]))
-            bd.set <- c(bd.set,hit.rslt$coord[1])
+            sgn.set <- c(sgn.set,sign(u.mat[k, hit.rslt$coord[1]]))
+            bd.set <- c(bd.set, hit.rslt$coord[1])
 
-            u.mat[k,bd.set] <- lbd[k]*sgn.set
-            r.delta <- delta + (lbd[k]-bf.lbd)*delta.slope
+            u.mat[k, bd.set] <- lbd[k] * sgn.set
+            r.delta <- delta + (lbd[k] - bf.lbd) * delta.slope
             hit <- c(hit,T)
           } else{
             if(lv.rslt$lbd==0){
@@ -158,9 +176,6 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
           }
         }
       }
-      if(lbd[k]<=thres.lambda){
-        break
-      }
     }
     u.mat <- matrix(u.mat[!is.na(u.mat[,1]),],ncol=m)
     delta.mat <- matrix(delta.mat[!is.na(delta.mat[,1]),],ncol=null.size)
@@ -170,9 +185,13 @@ ESPgenlasso <- function(y, X, D, genlasso.option=F, thres.lambda = 0.1, iter = 1
     delta.mat.slope[which(abs(delta.mat.slope)<tol)] <- 0
     rownames(u.mat) <- apply(u.mat,1,function(x) max(abs(x)))
     beta <- .ginv_ftn(t(X) %*% X, tol) %*% (matrix(rep(t(X) %*% y, times=length(lbd)), dim(X)[2], length(lbd)) - t(D) %*% t(u.mat)) - w.mat %*% (t(delta.mat)[,-1])
+    beta <- cbind(beta , .ginv_ftn(t(X) %*% X, tol) %*% (t(X) %*% y) )
+    colnames(beta)[dim(beta)[2]] <- "0"
     fit <- X %*% beta
-    return(list(u = t(u.mat), delta = (delta.mat), delta_slope = delta.mat.slope,
+    out <- list(u = t(u.mat), delta = (delta.mat), delta_slope = delta.mat.slope,
                 lambda = lbd, hit = hit, beta = beta, fit = fit,
-                X = X, y = y, D=D, W=w.mat))
+                X = X, y = y, D=D, W=w.mat)
+    class(out) <- c("ESPgenlasso", "list")
+    return(out)
   }
 }

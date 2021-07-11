@@ -2,14 +2,15 @@
 #'
 #' This function gets the solution that is a (partial) minimal (or/and) maximal l1 norm solution for some lambda.
 #'
-#' @param object ESPgenlasso object
-#' @param min.indices beta coef indices
-#' @param max.indices beta coef indices
-#' @param lambda.seq lambda seq
-#' @return solutions for each lambda seq
+#' @param object ESPgenlasso object.
+#' @param min.indices beta coef indices that would expected to have the minimum l1 norm.
+#' @param max.indices beta coef indices that would expected to have the maximum l1 norm.
+#' @param lambda.seq lambda seq.
+#' @param tol tolerance.
+#' @return solutions for each lambda seq.
 #' @export
 #'
-mm.l1.solution <- function(object, lambda.seq, min.indices = c(), max.indices = c(), tol = 1e-10)
+spec.l1.solution <- function(object, lambda.seq, min.indices = c(), max.indices = c(), tol = 1e-10)
 {
   contain.lasso <- .check.lasso(object$D)
   spec.beta.list <- list()
@@ -30,11 +31,11 @@ mm.l1.solution <- function(object, lambda.seq, min.indices = c(), max.indices = 
       d <- as.numeric(beta.sign.vec)[min.indices]%*%object.beta[min.indices]-as.numeric(beta.sign.vec)[max.indices]%*%object.beta[max.indices]
       a <- (as.numeric(beta.sign.vec)[min.indices]%*%C[min.indices,])-(as.numeric(beta.sign.vec)[max.indices]%*%C[max.indices,])
 
-      cons <- lincon(A, d=rep(0, nrow(A)), dir=c(rep(">=",nrow(A))), val=B,
+      cons <- optiSolve::lincon(A, d=rep(0, nrow(A)), dir=c(rep(">=",nrow(A))), val=B,
                      use=rep(TRUE,nrow(A)),name=c(1:nrow(A)))
-      loss <- linfun(a, d=as.numeric(d), id=1:length(a), name="lin.fun")
-      op <- cop(loss,lc=cons)
-      op.sol <- solvecop(op,solver = "alabama",maxit = 500,itmax = 500,ilack.max = 500, quiet=TRUE)
+      loss <- optiSolve::linfun(a, d=as.numeric(d), id=1:length(a), name="lin.fun")
+      op <- optiSolve::cop(loss,lc=cons)
+      op.sol <- optiSolve::solvecop(op,solver = "alabama",maxit = 500,itmax = 500,ilack.max = 500, quiet=TRUE)
 
       add_coef <- C%*%op.sol$x
       spec.beta <- object.beta + add_coef
