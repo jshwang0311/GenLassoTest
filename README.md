@@ -4,5 +4,9 @@ This R package provides a solution path of generalized lasso problem for rank-de
 - Jaesung Hwang, Joongho Won, Yongdai Kim, Characterization of the Solutions Set of the Generalized Lasso for Rank-deficient Design Matrices.
 
 ## Install
+```R
+install.packages("devtools")
+devtools::install_github("jshwang0311/ESPgenlasso")
+```
 
 ## Example
