@@ -40,7 +40,7 @@ D <- rbind(D,temp.D)
 
 Find the exact solution path algorithm with the following command.
 ```R
-new.prop.rslt <- ESPgenlasso::ESPgenlasso(y,X,D,iter = 50000)
+new.prop.rslt <- ESPgenlasso::ESPgenlasso(y,X,D)
 ```
 
 To find a (partial) minimal (or/and) maximal $l_1$ norm solution for the given lambdas, enter the following command.
