@@ -5,4 +5,4 @@ This R package provides a solution path of generalized lasso problem for rank-de
 
 ## Install
 
-## Exammple
+## Example
