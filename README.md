@@ -43,7 +43,7 @@ Find the exact solution path with the following command.
 new.prop.rslt <- ESPgenlasso::ESPgenlasso(y,X,D)
 ```
 
-To find a (partial) minimal (or/and) maximal $l_1$ norm solution for the given lambdas, enter the following command.
+To find a partial minimal and maximal $l_1$ norm solution for the given lambdas, enter the following command.
 ```R
 # Set the indices of beta coef that would expected to have the maximum l1 norm
 max.indices <- which(beta.coef==2)[c(1:100)]
@@ -53,7 +53,7 @@ lambda.seq <- c(100,30,20,10,5,3,1)
 spec.l1 <- ESPgenlasso::spec.l1.solution(new.prop.rslt, lambda.seq, min.indices, max.indices)
 ```
 
-To get a (partial) maximal l infinity norm solution for the given lambdas, use the following command.
+To get a partial maximal l infinity norm solution for the given lambdas, use the following command.
 ```R
 # Set beta coef indices that would expected to have the maximum l infinity norm.
 max.indices <- which(beta.coef==2)[c(1:50)]
