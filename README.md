@@ -38,7 +38,7 @@ temp.D <- diag(eps,p)
 D <- rbind(D,temp.D)
 ```
 
-Find the exact solution path algorithm with the following command.
+Find the exact solution path with the following command.
 ```R
 new.prop.rslt <- ESPgenlasso::ESPgenlasso(y,X,D)
 ```
